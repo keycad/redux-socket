@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+const listeners = {};
+
 export default function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 	return ({dispatch}) => {
 		return (next) => (action) => {
