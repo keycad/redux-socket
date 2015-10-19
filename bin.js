@@ -16,6 +16,8 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var listeners = {};
+
 function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 	return function (_ref) {
 		var dispatch = _ref.dispatch;
@@ -25,8 +27,8 @@ function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 				if (!action.sock) return next(action);
 
 				if (!socket.connected) {
-					// console.log('socket is disconnected!');
-					return next(disconnectedAction);
+					if (disconnectedAction) return next(disconnectedAction);
+					return console.error('socket is disconnected!');
 				}
 
 				var type = action.type;
@@ -45,8 +47,8 @@ function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 				var dummy = _ref2.dummy;
 
 				if (listeners[path]) {
-					// console.log('A request is already in progress!');
-					return next(duplicateAction);
+					if (duplicateAction) return next(duplicateAction);
+					return console.error('A request is already in progress!');
 				}
 
 				// console.log('emmiting', path, data);
