@@ -6,8 +6,9 @@ export default function sockMiddlewareCreator(socket, disconnectedAction, duplic
 			if (!action.sock) return next(action);
 
 			if (!socket.connected) {
-				// console.log('socket is disconnected!');
-				return next(disconnectedAction);
+				if (disconnectedAction)
+					return next(disconnectedAction);
+				return console.error('socket is disconnected!');
 			}
 
 			const { type, sock, ...rest } = action;
@@ -18,8 +19,9 @@ export default function sockMiddlewareCreator(socket, disconnectedAction, duplic
 				typeof sock === 'string' ? { path: sock, data: {} } : sock;
 
 			if (listeners[path]) {
-				// console.log('A request is already in progress!');
-				return next(duplicateAction);
+				if (duplicateAction)
+					return next(duplicateAction);
+				return console.error('A request is already in progress!');
 			}
 
 			// console.log('emmiting', path, data);
