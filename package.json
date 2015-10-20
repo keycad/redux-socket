@@ -1,6 +1,6 @@
 {
   "name": "redux-socket",
-  "version": "0.0.231",
+  "version": "0.0.24",
   "description": "redux socket request-response middleware",
   "main": "bin.js",
   "scripts": {

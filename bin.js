@@ -18,7 +18,12 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var listeners = {};
 
-function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
+function sockMiddlewareCreator(socket) {
+	var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	var disconnectedAction = options.disconnectedAction;
+	var duplicateAction = options.duplicateAction;
+	var debugMode = options.debugMode;
+
 	return function (_ref) {
 		var dispatch = _ref.dispatch;
 
@@ -51,12 +56,12 @@ function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 					return console.error('A request is already in progress!');
 				}
 
-				// console.log('emmiting', path, data);
+				if (debugMode) console.log('emmiting', path, data);
 				var _listeners = listeners[path] = {};
 
 				var removeListeners = function removeListeners() {
 					_lodash2['default'].forEach(_listeners, function (listener, prefix) {
-						// console.log('remove listener', prefix + path);
+						if (debugMode) console.log('removed listener', prefix + path);
 						socket.removeListener(prefix + path, listener);
 					});
 
@@ -65,13 +70,13 @@ function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 
 				var prepareListener = function prepareListener(prefix, callback) {
 					var listener = _listeners[prefix] = function (res) {
-						// console.log(prefix + path, 'received', res);
+						if (debugMode) console.log(prefix + path, 'received', res);
 						_lodash2['default'].defer(function () {
 							return dispatch(_extends({ type: path }, callback(res)));
 						});
 						removeListeners();
 					};
-					// console.log('adding listener', prefix + path);
+					if (debugMode) console.log('adding listener', prefix + path);
 					socket.on(prefix + path, listener);
 				};
 
@@ -80,7 +85,7 @@ function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
 				if (!dummy) socket.emit(path, data);
 
 				if (typeof sock === 'string') {
-					// console.log(path, 'sock string dispatch');
+					if (debugMode) console.log(path, 'sock string dispatch');
 					_lodash2['default'].defer(function () {
 						return dispatch({ type: path });
 					});

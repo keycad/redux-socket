@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 const listeners = {};
 
-export default function sockMiddlewareCreator(socket, disconnectedAction, duplicateAction) {
+export default function sockMiddlewareCreator(socket, options = {}) {
+	const {disconnectedAction, duplicateAction, debugMode} = options;
 	return ({dispatch}) => {
 		return (next) => (action) => {
 			if (!action.sock) return next(action);
@@ -26,12 +27,12 @@ export default function sockMiddlewareCreator(socket, disconnectedAction, duplic
 				return console.error('A request is already in progress!');
 			}
 
-			// console.log('emmiting', path, data);
+			if (debugMode) console.log('emmiting', path, data);
 			const _listeners = listeners[path] = {};
 
 			const removeListeners = () => {
 				_.forEach(_listeners, (listener, prefix) => {
-					// console.log('remove listener', prefix + path);
+					if (debugMode) console.log('removed listener', prefix + path);
 					socket.removeListener(prefix + path, listener);
 				});
 
@@ -40,11 +41,11 @@ export default function sockMiddlewareCreator(socket, disconnectedAction, duplic
 
 			const prepareListener = (prefix, callback) => {
 				const listener = _listeners[prefix] = res => {
-					// console.log(prefix + path, 'received', res);
+					if (debugMode) console.log(prefix + path, 'received', res);
 					_.defer(() => dispatch({type: path, ...callback(res)}));
 					removeListeners();
 				};
-				// console.log('adding listener', prefix + path);
+				if (debugMode) console.log('adding listener', prefix + path);
 				socket.on(prefix + path, listener);
 			};
 
@@ -53,7 +54,7 @@ export default function sockMiddlewareCreator(socket, disconnectedAction, duplic
 			if (!dummy) socket.emit(path, data);
 
 			if (typeof sock === 'string') {
-				// console.log(path, 'sock string dispatch');
+				if (debugMode) console.log(path, 'sock string dispatch');
 				_.defer(() => dispatch({type: path}));
 				delete listeners[path];
 			}
