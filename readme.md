@@ -33,3 +33,7 @@ DisconnectedAction and duplicateAction are actions to be dispatched in case the 
 ```
 npm install -S redux-socket
 ```
+
+## Example usage
+[createMiddleware](https://github.com/quirinpa/2Post/blob/master/src/client/redux-create/middleware/index.js)
+[Actions](https://github.com/quirinpa/2Post/blob/master/src/dux/user.js)
