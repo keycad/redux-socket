@@ -1,20 +1,13 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports['default'] = sockMiddlewareCreator;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = sockMiddlewareCreator;
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
 
 var listeners = {};
 
@@ -60,18 +53,17 @@ function sockMiddlewareCreator(socket) {
 				var _listeners = listeners[path] = {};
 
 				var removeListeners = function removeListeners() {
-					_lodash2['default'].forEach(_listeners, function (listener, prefix) {
+					Object.keys(_listeners).forEach(function (prefix) {
 						if (debugMode) console.log('removed listener', prefix + path);
-						socket.removeListener(prefix + path, listener);
+						socket.removeListener(prefix + path, _listeners[prefix]);
 					});
-
 					delete listeners[path];
 				};
 
 				var prepareListener = function prepareListener(prefix, callback) {
 					var listener = _listeners[prefix] = function (res) {
 						if (debugMode) console.log(prefix + path, 'received', res);
-						_lodash2['default'].defer(function () {
+						_.defer(function () {
 							return dispatch(_extends({ type: path }, callback(res)));
 						});
 						removeListeners();
@@ -86,9 +78,9 @@ function sockMiddlewareCreator(socket) {
 
 				if (typeof sock === 'string') {
 					if (debugMode) console.log(path, 'sock string dispatch');
-					_lodash2['default'].defer(function () {
+					setTimeout(function () {
 						return dispatch({ type: path });
-					});
+					}, 0);
 					delete listeners[path];
 				}
 			};
@@ -96,4 +88,3 @@ function sockMiddlewareCreator(socket) {
 	};
 }
 
-module.exports = exports['default'];

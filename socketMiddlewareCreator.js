@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const listeners = {};
 
 export default function sockMiddlewareCreator(socket, options = {}) {
@@ -31,11 +29,11 @@ export default function sockMiddlewareCreator(socket, options = {}) {
 			const _listeners = listeners[path] = {};
 
 			const removeListeners = () => {
-				_.forEach(_listeners, (listener, prefix) => {
-					if (debugMode) console.log('removed listener', prefix + path);
-					socket.removeListener(prefix + path, listener);
-				});
-
+				Object.keys(_listeners)
+					.forEach(prefix => {
+						if (debugMode) console.log('removed listener', prefix + path);
+						socket.removeListener(prefix + path, _listeners[prefix]);
+					});
 				delete listeners[path];
 			};
 
@@ -55,7 +53,7 @@ export default function sockMiddlewareCreator(socket, options = {}) {
 
 			if (typeof sock === 'string') {
 				if (debugMode) console.log(path, 'sock string dispatch');
-				_.defer(() => dispatch({type: path}));
+				setTimeout(() => dispatch({type: path}), 0);
 				delete listeners[path];
 			}
 		};
